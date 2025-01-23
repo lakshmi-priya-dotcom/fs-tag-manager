@@ -2,7 +2,7 @@ const axios = require('axios'); // Import axios for API requests
 const http = require('http'); // Import HTTP module to create a server
 
 // API endpoint and token
-const API_URL = 'https://lakshmipriya-test.myfreshworks.com/crm/sales/api/contacts/view/402004204354?per_page=100&sort=name&sort_type=asc&page=1';
+const BASE_API_URL = 'https://lakshmipriya-test.myfreshworks.com/crm/sales/api/contacts/view/402004204354';
 const HEADERS = {
   Authorization: 'Token token=utuDLqIN_mLX225l6F0Teg',
   'Content-Type': 'application/json',
@@ -11,28 +11,39 @@ const HEADERS = {
 // API URL for updating a contact
 const UPDATE_CONTACT_URL = 'https://lakshmipriya-test.myfreshworks.com/crm/sales/api/contacts/';
 
-// Function to fetch and modify contacts
+// Function to fetch and modify contacts across pages
 async function fetchAndModifyContacts() {
-  try {
-    // Fetch data from Freshsales API
-    const response = await axios.get(API_URL, { headers: HEADERS });
-    const contacts = response.data.contacts || [];
+  let page = 1;
+  const maxPages = 20; // Maximum pages to fetch
 
-    // Filter contacts by tag and remove the "Bulk email sent" tag
-    const modifiedContacts = contacts.map(contact => {
-      if (contact.tags && contact.tags.includes('Bulk email sent')) {
-        // Remove the "Bulk email sent" tag
-        contact.tags = contact.tags.filter(tag => tag !== 'Bulk email sent');
-        // Now, update the contact in the CRM
-        updateContactInCRM(contact);
+  while (page <= maxPages) {
+    try {
+      // Fetch data for the current page
+      const response = await axios.get(`${BASE_API_URL}?per_page=100&sort=name&sort_type=asc&page=${page}`, { headers: HEADERS });
+      const contacts = response.data.contacts || [];
+
+      if (contacts.length === 0) {
+        console.log(`No contacts found on page ${page}`);
+        break; // Exit the loop if there are no contacts on this page
       }
-      return contact;
-    });
 
-    return modifiedContacts;
-  } catch (error) {
-    console.error('Error fetching contacts:', error.message);
-    return [];
+      // Filter contacts by tag and remove the "Bulk email sent" tag
+      const modifiedContacts = contacts.map(contact => {
+        if (contact.tags && contact.tags.includes('Bulk email sent')) {
+          // Remove the "Bulk email sent" tag
+          contact.tags = contact.tags.filter(tag => tag !== 'Bulk email sent');
+          // Now, update the contact in the CRM
+          updateContactInCRM(contact);
+        }
+        return contact;
+      });
+
+      console.log(`Processed page ${page}`);
+      page++; // Move to the next page
+    } catch (error) {
+      console.error(`Error fetching page ${page}:`, error.message);
+      break; // Exit the loop if there's an error
+    }
   }
 }
 
