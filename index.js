@@ -29,9 +29,9 @@ async function fetchAndModifyContacts() {
 
       // Filter contacts by tag and remove the "Bulk email sent" tag
       const modifiedContacts = contacts.map(contact => {
-        if (contact.tags && contact.tags.includes('Bulk email sent')) {
+        if (contact.tags && contact.tags.includes('test tag for list')) {
           // Remove the "Bulk email sent" tag
-          contact.tags = contact.tags.filter(tag => tag !== 'Bulk email sent');
+          contact.tags = contact.tags.filter(tag => tag !== 'test tag for list');
           // Now, update the contact in the CRM
           updateContactInCRM(contact);
         }
@@ -73,7 +73,7 @@ async function updateContactInCRM(contact) {
 
 // Create a local server to display the modified contacts
 const server = http.createServer(async (req, res) => {
-  if (req.url === '/contacts' && req.method === 'GET') {
+  if (req.url === '/' && req.method === 'GET') {
     const modifiedContacts = await fetchAndModifyContacts();
 
     // Send modified contacts as JSON response
