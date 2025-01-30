@@ -3,7 +3,7 @@ const http = require('http'); // Import HTTP module to create a server
 
 // API endpoint and token
 const BASE_API_URL = 'https://lakshmipriya-test.myfreshworks.com/crm/sales/api';
-const HEADERS = {
+const HEADERS = { 
   Authorization: 'Token token=utuDLqIN_mLX225l6F0Teg',
   'Content-Type': 'application/json',
 };
